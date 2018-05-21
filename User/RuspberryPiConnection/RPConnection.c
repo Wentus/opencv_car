@@ -1,4 +1,5 @@
 #include "RPConnection.h"
+#include "Engine.h"
 //#include "USART_Debug.h"
 
 static uint8_t angle = 0;
@@ -32,32 +33,34 @@ void RPConnection_Init()
 	  husart2.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	  husart2.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	  
+		NVIC_EnableIRQ(USART2_IRQn);
 	  USART_Init(USART2,&husart2);
-		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-    NVIC_EnableIRQ(USART2_IRQn);
-		USART_Cmd(USART2,ENABLE);	
+		USART_Cmd(USART2,ENABLE);
+		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);	
 }
 
 void USART2_IRQHandler(void)
 {
     if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
     {
-			angle = USART_ReceiveData(USART2);
-				for(int j = 0; j <1000; j++);
-			//Usart_Transmit_uint8_t(angle);
-			speed = USART_ReceiveData(USART2);
-			//Usart_Transmit_uint8_t(speed);
-			USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-    } 
+			static int speed_v2=0;
+			static uint8_t pos=0;
+			uint8_t recv=0;
+			recv = USART_ReceiveData(USART2);
+			if(recv == 48) pos=0;
+			if(pos == 1) speed_v2 = recv;
+			if(pos == 2) angle =recv;
+			pos++;
+			ChangeSpeed(speed_v2);
+		}
 }
 
 void SendToRaspberryPi(uint8_t* data, uint8_t count)
 {
-	USART_SendData(USART2, 244);
-	//Usart_Transmit_uint8_t(244);
+	USART_SendData(USART2, 254);
 	for(int i = 0; i < count; i++){
-			for(int j = 0; j <1000; j++);
-		USART_SendData(USART2, *(data+i));
+			while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+		  USART_SendData(USART2, *(data+i));
 		//Usart_Transmit_uint8_t(*(data+i));
 	}
 }

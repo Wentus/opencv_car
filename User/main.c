@@ -61,25 +61,26 @@ int speed = 0;
 int main(void)
 {
 	SetSysClockTo72();
-  //Usart_Init();
+  Usart_Init();
 	RPConnection_Init();
-  //ProximitySensors_Init();
+  ProximitySensors_Init();
 	SysTick_setting();
-	//OptronInit();
-	//EngineInit();
-	//ServoInit();
-	//TIMTransmit_IRQ_Init();
+	OptronInit();
+	EngineInit();
+	ServoInit();
+	TIMTransmit_IRQ_Init();
 	data[0] = 1;
 	data[1] = 2;
 	while(1)
 	{
 			//for(int j = 0; j <2; j++);
-		SendToRaspberryPi(data,2);
+		/*SendToRaspberryPi(data,2);
 		delay_ms(10);
 		angle = GetAngle();
 		SendToRaspberryPi((uint8_t*)&angle,1);
 		speed = GetSpeed();
 		SendToRaspberryPi((uint8_t*)&speed,1);
+		*/
 		delay_ms(100);
 		//SendToRaspberryPi("%i%i%i%i%i%i",254,proximitySensors[0],proximitySensors[1],proximitySensors[2],proximitySensors[3],proximitySensors[4]);
 		//TIM_SetCompare3(TIM4,40);
